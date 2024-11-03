@@ -17,10 +17,16 @@ public class FileUploadController {
         this.cloudinaryService = cloudinaryService;
     }
 
+    @PostMapping("/upload/file")
+    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file,
+                                         @RequestParam("folder") String folderName) throws IOException {
+        return ResponseEntity.ok(cloudinaryService.uploadFile(file, folderName));
+    }
+
     @PostMapping("/upload/image")
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file,
                                          @RequestParam("folder") String folderName) throws IOException {
-        return ResponseEntity.ok(cloudinaryService.uploadFile(file, folderName));
+        return ResponseEntity.ok(cloudinaryService.uploadImage(file, folderName));
     }
 
     @PostMapping("/upload/video")
@@ -29,8 +35,8 @@ public class FileUploadController {
         return ResponseEntity.ok(cloudinaryService.uploadVideo(file, folderName));
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteFile(@RequestParam String publicId) throws IOException {
-        return ResponseEntity.ok(cloudinaryService.deleteFile(publicId));
+    @DeleteMapping("/delete/raw")
+    public ResponseEntity<?> deleteRaw(@RequestParam String publicId) throws IOException {
+        return ResponseEntity.ok(cloudinaryService.deleteRaw(publicId));
     }
 }

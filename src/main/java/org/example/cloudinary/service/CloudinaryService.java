@@ -18,26 +18,59 @@ public class CloudinaryService {
     }
 
     public Map uploadFile(MultipartFile file, String folderName) throws IOException {
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null) {
+            throw new IOException("File name is null or invalid.");
+        }
+
+        String extension = originalFilename.substring(originalFilename.lastIndexOf('.') + 1);
+
         Map uploadedFile = cloudinary.uploader().upload(file.getBytes(),
                 ObjectUtils.asMap(
+                        "format", extension,
+                        "resource_type", "raw",
+                        "folder", folderName,
+                        "public_id", originalFilename
+                ));
+
+        printUrl(uploadedFile);
+
+        return uploadedFile;
+    }
+
+    public Map uploadImage(MultipartFile file, String folderName) throws IOException {
+        Map uploadedFile = cloudinary.uploader().upload(file.getBytes(),
+                ObjectUtils.asMap(
+                        "resource_type", "image",
                         "folder", folderName
                 ));
 
-        String url = (String) uploadedFile.get("secure_url");
-        System.out.println("url: " + url);
+        printUrl(uploadedFile);
 
         return uploadedFile;
     }
 
     public Map uploadVideo(MultipartFile file, String folderName) throws IOException {
-        return cloudinary.uploader().upload(file.getBytes(),
+        Map uploadedFile = cloudinary.uploader().upload(file.getBytes(),
                 ObjectUtils.asMap(
                         "resource_type", "video",
                         "folder", folderName
                 ));
+
+        printUrl(uploadedFile);
+
+        return uploadedFile;
     }
 
-    public Map deleteFile(String publicId) throws IOException {
-        return cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+    public Map deleteRaw(String publicId) throws IOException {
+        return cloudinary.uploader().destroy(publicId, ObjectUtils.asMap(
+                "resource_type", "raw",
+                "invalidate", true
+        ));
+    }
+
+    private static void printUrl(Map uploadedFile) {
+        String url = (String) uploadedFile.get("secure_url");
+        System.out.println("url: " + url);
     }
 }
